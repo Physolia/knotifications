@@ -53,6 +53,7 @@ struct Q_DECL_HIDDEN KNotification::Private {
     QTimer updateTimer;
     bool needUpdate = false;
     bool isNew = true;
+    QWindow *window = nullptr;
 
 #if KNOTIFICATIONS_BUILD_DEPRECATED_SINCE(5, 67)
     /**
@@ -596,4 +597,27 @@ void KNotification::setHint(const QString &hint, const QVariant &value)
 QVariantMap KNotification::hints() const
 {
     return d->hints;
+}
+
+void KNotification::setWindow(QWindow *window)
+{
+    if (window == d->window) {
+        return;
+    }
+
+    disconnect(d->window, &QWindow::activeChanged, this, &KNotification::slotWindowActiveChanged);
+    d->window = window;
+    connect(d->window, &QWindow::activeChanged, this, &KNotification::slotWindowActiveChanged);
+}
+
+void KNotification::slotWindowActiveChanged()
+{
+    if (d->window->isActive() && (d->flags & CloseWhenWindowActivated)) {
+        close();
+    }
+}
+
+QWindow *KNotification::window() const
+{
+    return d->window;
 }

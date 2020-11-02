@@ -17,6 +17,7 @@
 #include <QPixmap>
 #include <QUrl>
 #include <QVariant>
+#include <QWindow>
 
 #include <memory>
 
@@ -102,6 +103,16 @@ public:
          * @since 5.18
          */
         SkipGrouping = 0x10,
+
+        /**
+         * The notification will be automatically closed if the window() becomes
+         * activated.
+         *
+         * You need to set a window using setWindow().
+         *
+         * @since 5.76
+         */
+        CloseWhenWindowActivated = 0x20,
 
         /**
          * @internal
@@ -450,6 +461,22 @@ public:
     void setUrgency(Urgency urgency);
 
     /**
+     * Sets the window associated with this notification.
+     * This is relevant when using the CloseWhenWindowActivated flag.
+     *
+     * @since 5.76
+     */
+    void setWindow(QWindow *window);
+
+    /**
+     * The window associated with this notification. nullptr by default.
+     * @return the window set by setWindow()
+     *
+     * @since 5.76
+     */
+    QWindow *window() const;
+
+    /**
      * @internal
      * the id given by the notification manager
      */
@@ -587,6 +614,8 @@ public Q_SLOTS:
     QVariantMap hints() const;
 
 private:
+    void slotWindowActiveChanged();
+
     struct Private;
     Private *const d;
 
